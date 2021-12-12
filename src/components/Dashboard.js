@@ -7,7 +7,14 @@ import Panel from "./Panel";
 class Dashboard extends Component {
   state = {
     loading: false,
+    focused: null
   };
+
+  selectPanel(id) {
+    this.setState(previousState => ({
+      focused: previousState.focused !== null ? null : id
+    }));
+  }
 
   render() {
     const data = [
@@ -32,22 +39,27 @@ class Dashboard extends Component {
         value: "2.3"
       }
     ];
+  
+    const dashboardClasses = classnames("dashboard", {
+      "dashboard--focused": this.state.focused
+     });
     
-    const dashboardClasses = classnames("dashboard");
-
     if(this.state.loading){
       return <Loading/>
     }
 
-    let panels = data.map((panel) => {
-      return(
-        <Panel
-          key={panel.id}
-          id={panel.id}
-          label={panel.label}
-          value={panel.value}
-          />)
-        })
+    const panels = data
+      .filter(
+       panel => this.state.focused === null || this.state.focused === panel.id
+      )
+      .map(panel => (
+       <Panel 
+        onSelect={event => this.selectPanel(panel.id)}
+        key={panel.id}
+        label={panel.label}
+        value={panel.value}
+       />
+      ));
 
     return(
       <main className={dashboardClasses}>
